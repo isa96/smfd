@@ -1,0 +1,6 @@
+fastapi==0.96.0
+opencv_contrib_python
+Pillow
+uvicorn[standard]
+python-multipart
+huggingface_hub

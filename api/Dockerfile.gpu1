@@ -1,0 +1,53 @@
+# Stage 1: Use a base image with Python
+FROM python:3.7-slim AS builder
+
+# Set the working directory
+WORKDIR /code
+
+# Copy the requirements file
+COPY requirements.txt ./
+
+# Install necessary dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libsm6 \
+    libxext6 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies from requirements.txt
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+# Stage 2: Use the NVIDIA GPU image
+FROM nvcr.io/nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04 AS gpu
+
+# Set the working directory
+WORKDIR /code
+
+# Copy the dependencies from the builder stage
+COPY --from=builder /usr/local/lib/python3.7/site-packages /usr/local/lib/python3.7/site-packages
+
+# Install additional dependencies for GPU support
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    nvidia-cuda-toolkit && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create a user with UID 1000
+RUN useradd -m -u 1000 user
+
+# Switch to the user
+USER user
+
+# Set environment variables
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH
+
+# Set the working directory for the application
+WORKDIR $HOME/app
+
+# Copy the application code
+COPY --chown=user . $HOME/app/
+
+# Specify the command to run on container start
+CMD ["uvicorn", "endpoints:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "4"]
