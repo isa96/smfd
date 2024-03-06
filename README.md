@@ -7,12 +7,20 @@ The objective is to develop a simple model that can detect whether someone is we
 ## Install
 
 ```
+git clone https://github.com/isa96/smfd.git
+```
+
+```
 pip install -r requirements.txt
 ```
 
 ## Usage
 
 1. Run **inference.py** This code aims to test the model. 
+
+```
+python inference.py /path/to/your/input_image.jpg /path/to/your/output_image.jpg
+```
  
 
 ## API 
@@ -75,5 +83,6 @@ https://huggingface.co/spaces/isa96/fm-ml
 https://isa96-fm-ml.hf.space/api/v1/ml/docs.
 ```
 
-
+## Note
+Read more detail in Documentation.pdf
 
